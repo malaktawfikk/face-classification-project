@@ -1,0 +1,127 @@
+# Face Classification Project Configuration
+
+# Dataset Configuration
+dataset:
+  name: "lfw"  # Options: lfw, vggface2
+  data_dir: "data/raw"
+  processed_dir: "data/processed"
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  min_faces_per_person: 10  # Minimum images per identity
+  
+# Preprocessing
+preprocessing:
+  target_size: [224, 224]  # Will be adjusted per model
+  face_detection_confidence: 0.95
+  alignment: true
+  augmentation:
+    enabled: true
+    rotation_range: 20
+    width_shift_range: 0.2
+    height_shift_range: 0.2
+    horizontal_flip: true
+    zoom_range: 0.2
+    brightness_range: [0.8, 1.2]
+  normalization: "imagenet"  # Options: imagenet, standard, minmax
+
+# Model Configurations
+models:
+  resnet50:
+    input_size: [224, 224, 3]
+    pretrained_weights: "imagenet"
+    freeze_layers: 143  # Freeze first N layers
+    dropout_rate: 0.5
+    dense_units: 512
+    
+  inceptionv3:
+    input_size: [299, 299, 3]
+    pretrained_weights: "imagenet"
+    freeze_layers: 249
+    dropout_rate: 0.5
+    dense_units: 512
+    
+  efficientnet:
+    input_size: [224, 224, 3]
+    pretrained_weights: "imagenet"
+    freeze_layers: 200
+    dropout_rate: 0.3
+    dense_units: 512
+
+# Training Configuration
+training:
+  epochs: 50
+  batch_size: 32
+  initial_learning_rate: 0.001
+  optimizer: "adam"  # Options: adam, sgd, rmsprop
+  loss_function: "categorical_crossentropy"
+  
+  # Learning Rate Schedule
+  lr_schedule:
+    type: "reduce_on_plateau"  # Options: reduce_on_plateau, exponential_decay, cosine_decay
+    patience: 5
+    factor: 0.5
+    min_lr: 0.00001
+  
+  # Early Stopping
+  early_stopping:
+    enabled: true
+    patience: 10
+    restore_best_weights: true
+    monitor: "val_accuracy"
+  
+  # Callbacks
+  callbacks:
+    tensorboard: true
+    model_checkpoint: true
+    csv_logger: true
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - top_5_accuracy
+  confusion_matrix: true
+  roc_curves: true
+  classification_report: true
+
+# Real-time Recognition
+webcam:
+  camera_id: 0
+  detection_interval: 5  # frames between detections
+  confidence_threshold: 0.7
+  display_fps: true
+  save_captures: false
+
+# Grad-CAM Configuration
+gradcam:
+  layer_name: "auto"  # auto-detect last conv layer or specify
+  colormap: "jet"
+  alpha: 0.4  # overlay transparency
+
+# Paths
+paths:
+  models_dir: "data/models"
+  results_dir: "results"
+  logs_dir: "logs"
+  temp_dir: "temp"
+
+# Logging
+logging:
+  level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR
+  log_file: "logs/training.log"
+  console_output: true
+
+# Hardware
+hardware:
+  use_gpu: true
+  gpu_memory_fraction: 0.8
+  mixed_precision: false
+  num_workers: 4
+  prefetch_factor: 2
+
+# Reproducibility
+random_seed: 42
